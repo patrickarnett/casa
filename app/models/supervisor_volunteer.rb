@@ -5,18 +5,10 @@ class SupervisorVolunteer < ApplicationRecord
   belongs_to :supervisor, class_name: "User"
   validates :supervisor_id, uniqueness: {scope: :volunteer_id} # only 1 row allowed per supervisor-volunteer pair
   validates :volunteer_id, uniqueness: {scope: :is_active}, if: :is_active?
-  validate :ensure_supervisor_and_volunteer_belong_to_same_casa_org, if: -> { supervisor.present? && volunteer.present? }
+  validates :supervisor, has_shared_attribute: {shared_attribute: :casa_org, shared_with: :volunteer}
 
   def is_active?
     is_active == true
-  end
-
-  private
-
-  def ensure_supervisor_and_volunteer_belong_to_same_casa_org
-    return if supervisor.casa_org_id == volunteer.casa_org_id
-
-    errors.add(:volunteer, "and supervisor must belong to the same organization")
   end
 end
 
